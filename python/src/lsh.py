@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from collections import defaultdict
-
+#This code was used as concept for LSH. Unused and redundant rn
 class LSH:
     def __init__(self, num_tables, num_hashes, dimension):
         """
