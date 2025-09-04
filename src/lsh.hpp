@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -67,7 +69,7 @@ namespace diskann
             HashKey hashFunction(const Eigen::VectorXd& point, const Eigen::MatrixXd& hyperplane){
                 Eigen::VectorXd projection = hyperplane * point;
                 HashKey hash;
-                for (int i = 0; 1 < projection.size(); i++){
+                for (int i = 0; i < projection.size(); i++){
                     hash.push_back(projection(i) > 0 ? 1 : 0);
                 }
                 return hash;
