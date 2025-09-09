@@ -24,12 +24,12 @@ TEST(IndexConfigTest, LSHInitialization) {
 
     diskann::Index<float, uint32_t, uint32_t> index(index_config, data_store, std::move(graph_store), nullptr);
 
-    // Step 3: Verify LSH buckets are initialized correctly
-    ASSERT_TRUE(index._use_lsh); // Ensure LSH is enabled
-    ASSERT_EQ(index._lsh_buckets.size(), num_hash_tables); // Check number of hash tables
+    // Step 3: Verify LSH buckets are initialized correctly using public methods
+    ASSERT_TRUE(index.is_lsh_enabled()); // Ensure LSH is enabled
+    ASSERT_EQ(index.get_lsh_bucket_count(), num_hash_tables); // Check number of hash tables
 
-    for (const auto& table : index._lsh_buckets) {
-        ASSERT_GE(table.capacity(), num_hashes_per_table); // Check capacity of each table
+    for (size_t i = 0; i < num_hash_tables; ++i) {
+        ASSERT_GE(index.get_lsh_table_capacity(i), num_hashes_per_table); // Check capacity of each table
     }
 }
 
@@ -50,7 +50,15 @@ TEST(IndexConfigTest, NoLSHInitialization) {
 
     diskann::Index<float, uint32_t, uint32_t> index(index_config, data_store, std::move(graph_store), nullptr);
 
-    // Step 3: Verify LSH buckets are not initialized
-    ASSERT_FALSE(index._use_lsh); // Ensure LSH is disabled
-    ASSERT_TRUE(index._lsh_buckets.empty()); // Ensure no LSH buckets are created
+    // Step 3: Verify LSH is disabled
+    EXPECT_FALSE(index.is_lsh_enabled()); // Ensure LSH is disabled
+
+    // Step 4: Verify that there are no LSH tables
+    if (index.get_lsh_bucket_count() > 0) {
+        for (size_t i = 0; i < index.get_lsh_bucket_count(); ++i) {
+            EXPECT_EQ(index.get_lsh_table_capacity(i), 0);
+        }
+    } else {
+        SUCCEED() << "No LSH buckets created as expected";
+    }
 }

@@ -34,7 +34,7 @@ struct IndexConfig
 
     size_t num_pq_chunks;
     size_t num_frozen_pts;
-    size_t num_hash_tabls;
+    size_t num_hash_tables;
     size_t num_hashes_per_table;
 
     std::string label_type;
@@ -146,7 +146,7 @@ class IndexConfigBuilder
         return *this;
     }
 
-    IndexConfigBuilder &with_numhashes_per_table(size_t _num_hashes_per_table) {
+    IndexConfigBuilder &with_num_hashes_per_table(size_t _num_hashes_per_table) {
         this->_num_hashes_per_table = _num_hashes_per_table;
         return *this;
     }

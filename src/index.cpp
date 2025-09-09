@@ -38,9 +38,9 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config, std::shared_ptr<A
       _enable_tags(index_config.enable_tags), _indexingMaxC(DEFAULT_MAXC), _query_scratch(nullptr),
       _pq_dist(index_config.pq_dist_build), _use_opq(index_config.use_opq),
       _filtered_index(index_config.filtered_index),
-      _use_lsh(index_config.use_lsh), _num_has_tables(index_config.num_hash_tables),
-      _num_hashes_per_table(index_config.num_buckets_per_table), _num_pq_chunks(index_config.num_pq_chunks),
-      _delete_set(new tsl::robin_set<uint32_t>), _conc_consolidate(index_config.concurrent_consolidate),
+      _use_lsh(index_config.use_lsh), _num_hash_tables(index_config.num_hash_tables),
+      _num_hashes_per_table(index_config.num_hashes_per_table), _num_pq_chunks(index_config.num_pq_chunks),
+      _delete_set(new tsl::robin_set<uint32_t>), _conc_consolidate(index_config.concurrent_consolidate)
       
 {
     if (_dynamic_index && !_enable_tags)
@@ -79,7 +79,7 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config, std::shared_ptr<A
 
         _lsh_buckets.resize(num_hash_tables);
         for (auto &table : _lsh_buckets){
-            table.reserve(num_buckets_per_table);
+            table.reserve(num_hashes_per_table);
         }
     }
 
@@ -194,6 +194,23 @@ template <typename T, typename TagT, typename LabelT> Index<T, TagT, LabelT>::~I
         manager.destroy();
     }
 }
+
+template <typename T, typename TagT, typename LabelT>
+bool Index<T, TagT, LabelT>::is_lsh_enabled() const {
+    return _use_lsh;
+}
+
+template <typename T, typename TagT, typename LabelT>
+size_t Index<T, TagT, LabelT>::get_lsh_bucket_count() const {
+    return _lsh_buckets.size();
+}
+
+template <typename T, typename TagT, typename LabelT>
+size_t Index<T, TagT, LabelT>::get_lsh_table_capacity(size_t table_index) const {
+    return get_lsh_table_capacity(table_index);
+}
+
+
 
 template <typename T, typename TagT, typename LabelT>
 void Index<T, TagT, LabelT>::initialize_query_scratch(uint32_t num_threads, uint32_t search_l, uint32_t indexing_l,

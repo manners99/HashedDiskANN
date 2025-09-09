@@ -66,7 +66,7 @@ template <typename T, typename TagT = uint32_t, typename LabelT = uint32_t> clas
                             const size_t num_frozen_pts = 0, const bool dynamic_index = false,
                             const bool enable_tags = false, const bool concurrent_consolidate = false,
                             const bool pq_dist_build = false, const size_t num_pq_chunks = 0,
-                            const bool use_opq = false, const bool filtered_index = false);
+                            const bool use_opq = false, const bool filtered_index = false, const bool use_lsh = false);
 
     DISKANN_DLLEXPORT ~Index();
 
@@ -86,6 +86,9 @@ template <typename T, typename TagT = uint32_t, typename LabelT = uint32_t> clas
     // get some private variables
     DISKANN_DLLEXPORT size_t get_num_points();
     DISKANN_DLLEXPORT size_t get_max_points();
+    DISKANN_DLLEXPORT bool is_lsh_enabled() const;
+    DISKANN_DLLEXPORT size_t get_lsh_bucket_count() const;
+    DISKANN_DLLEXPORT size_t get_lsh_table_capacity(size_t table_index) const;
 
     DISKANN_DLLEXPORT bool detect_common_filters(uint32_t point_id, bool search_invocation,
                                                  const std::vector<LabelT> &incoming_labels);
@@ -359,6 +362,8 @@ template <typename T, typename TagT = uint32_t, typename LabelT = uint32_t> clas
     size_t _node_size;
     size_t _data_len;
     size_t _neighbor_len;
+    size_t _num_hash_tables;
+    size_t _num_hashes_per_table;
 
     //  Start point of the search. When _num_frozen_pts is greater than zero,
     //  this is the location of the first frozen point. Otherwise, this is a
@@ -372,6 +377,8 @@ template <typename T, typename TagT = uint32_t, typename LabelT = uint32_t> clas
     bool _enable_tags = false;
     bool _normalize_vecs = false; // Using normalied L2 for cosine.
     bool _deletes_enabled = false;
+    bool _use_lsh;
+    std::vector<std::vector<int>> _lsh_buckets;
 
     // Filter Support
 
