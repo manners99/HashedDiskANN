@@ -8,6 +8,7 @@
 #include <functional>
 #include <set>
 #include <eigen3/Eigen/Dense>
+#include <cmath>
 //use "sudo apt-get install libeigen3-dev" to intall Eigen library
 
 //Hash key type is vector<int> representing a binary hash
@@ -50,8 +51,19 @@ namespace diskann
         LSH(int numTables, int numHashes, int dimension)
             : numTables(numTables), numHashes(numHashes), dimension(dimension), tables(numTables), gen(std::random_device{}()), dist(0.0, 1.0)
             {
+
+                //reserve the outer vectores
+                tables.reserve(numTables);
                 //Generate the random hyperplanes
                 for (int i = 0; i < numTables; i++) {
+
+                    //Allocate hash table and reserve expected number of buckets
+                    std::unordered_map<HashKey, std::vector<int>, HashKeyHash, HashKeyEq> table;
+                    table.reserve(static_cast<size_t>(std::pow(2, numHashes)));
+                    std::cout << "[SPACE] Reserved " << (static_cast<size_t>(std::pow(2, numHashes))) << " unique hash keys" << std::endl;
+                    tables.push_back(std::move(table));
+
+                    //Create the hyperplanes
                     Eigen::MatrixXd hp(numHashes, dimension);
                     for (int j = 0; j < numHashes; j++ ) {
                         for (int k = 0; k < dimension; k++) {
