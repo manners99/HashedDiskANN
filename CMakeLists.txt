@@ -14,7 +14,6 @@
 #   such behavior.
 #   Contact for this feature: gopalrs.
 
-
 # Some variables like MSVC are defined only after project(), so put that first.
 cmake_minimum_required(VERSION 3.15)
 project(diskann)
@@ -28,6 +27,10 @@ if(NOT MSVC)
 endif()
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
+# add_subdirectory(googletest)
+# enable_testing()
+# add_subdirectory(tests)
 
 # Install nuget packages for dependencies.
 if (MSVC)

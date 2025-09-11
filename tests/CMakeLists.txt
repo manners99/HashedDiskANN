@@ -34,6 +34,30 @@ endif()
 
 set(DISKANN_UNIT_TEST_SOURCES main.cpp index_write_parameters_builder_tests.cpp)
 
+# # tests/CMakeLists.txt
+
+# # Find GoogleTest
+# find_package(GTest REQUIRED)
+
+# # Add the test executable
+# add_executable(lsh_config_test
+#     lsh_config_test.cpp
+# )
+
+# # Link with DiskANN library and GoogleTest
+# target_link_libraries(lsh_config_test
+#     PRIVATE
+#         diskann
+#         gtest
+#         gtest_main
+# )
+
+# # Register tests with CTest
+# include(GoogleTest)
+# gtest_discover_tests(lsh_config_test)
+
+
+
 add_executable(${PROJECT_NAME}_unit_tests ${DISKANN_SOURCES} ${DISKANN_UNIT_TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}_unit_tests ${PROJECT_NAME} ${DISKANN_TOOLS_TCMALLOC_LINK_OPTIONS} Boost::unit_test_framework)
 

@@ -51,6 +51,9 @@ namespace diskann
         LSH(int numTables, int numHashes, int dimension)
             : numTables(numTables), numHashes(numHashes), dimension(dimension), tables(numTables), gen(std::random_device{}()), dist(0.0, 1.0)
             {
+                std::cerr << "LSH constructor called: tables=" << numTables 
+                << ", numHashes=" << numHashes 
+                << ", dimension=" << dimension << std::endl;
 
                 //reserve the outer vectores
                 tables.reserve(numTables);
@@ -59,9 +62,13 @@ namespace diskann
 
                     //Allocate hash table and reserve expected number of buckets
                     std::unordered_map<HashKey, std::vector<int>, HashKeyHash, HashKeyEq> table;
-                    table.reserve(static_cast<size_t>(std::pow(2, numHashes)));
-                    std::cout << "[SPACE] Reserved " << (static_cast<size_t>(std::pow(2, numHashes))) << " unique hash keys" << std::endl;
-                    tables.push_back(std::move(table));
+                    size_t numBuckets = 1ULL << numHashes;
+                    if (numBuckets > 1e6) 
+                        numBuckets = 1e6;
+
+                    table.reserve(numBuckets); // reserve on local table
+                    tables.push_back(std::move(table)); // push into tables vector
+                    std::cout << "[SPACE] Reserved " << (numBuckets) << " unique hash keys" << std::endl;
 
                     //Create the hyperplanes
                     Eigen::MatrixXd hp(numHashes, dimension);

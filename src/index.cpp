@@ -13,6 +13,7 @@
 #include "tsl/robin_set.h"
 #include "windows_customizations.h"
 #include "tag_uint128.h"
+#include "lsh.hpp"
 #if defined(DISKANN_RELEASE_UNUSED_TCMALLOC_MEMORY_AT_CHECKPOINTS) && defined(DISKANN_BUILD)
 #include "gperftools/malloc_extension.h"
 #endif
@@ -73,14 +74,26 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config, std::shared_ptr<A
     }
     const size_t total_internal_points = _max_points + _num_frozen_pts;
 
+    _use_lsh = true;
     if (_use_lsh) {
-        size_t num_hash_tables = index_config.num_hash_tables;
-        size_t num_hashes_per_table = index_config.num_hashes_per_table;
+        // size_t num_hash_tables = index_config.num_hash_tables;
+        // size_t num_hashes_per_table = index_config.num_hashes_per_table;
+        size_t num_hash_tables = 6;
+        size_t num_hashes_per_table = 6;
+        std::cout << "num_hash_tables=" << num_hash_tables 
+          << ", num_hashes_per_table=" << num_hashes_per_table 
+          << ", dim=" << _dim << std::endl;
 
-        _lsh_buckets.resize(num_hash_tables);
-        for (auto &table : _lsh_buckets){
-            table.reserve(num_hashes_per_table);
-        }
+
+
+        diskann::LSH lsh_tables(num_hash_tables, num_hashes_per_table, _dim);
+        // _lsh_buckets.resize(num_hash_tables);
+        // for (auto &table : _lsh_buckets){
+        //     // table.reserve(num_hashes_per_table);
+        // }
+        std::cout << "Success" << std::endl;
+    } else {
+        std::cout << "Failure" << std::endl;
     }
 
     _start = (uint32_t)_max_points;
@@ -147,7 +160,7 @@ Index<T, TagT, LabelT>::Index(Metric m, const size_t dim, const size_t max_point
               .is_use_opq(use_opq)
               .is_filtered(filtered_index)
               .with_data_type(diskann_type_to_name<T>())
-              .is_use_lsh(use_lsh)
+              .is_use_lsh(true)
               .build(),
           IndexFactory::construct_datastore<T>(DataStoreStrategy::MEMORY,
                                                (max_points == 0 ? (size_t)1 : max_points) +
