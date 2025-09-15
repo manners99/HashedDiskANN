@@ -13,7 +13,7 @@
 #include "tsl/robin_set.h"
 #include "windows_customizations.h"
 #include "tag_uint128.h"
-#include "lsh.hpp"
+#include "lsh.h"
 #if defined(DISKANN_RELEASE_UNUSED_TCMALLOC_MEMORY_AT_CHECKPOINTS) && defined(DISKANN_BUILD)
 #include "gperftools/malloc_extension.h"
 #endif
@@ -75,6 +75,7 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config, std::shared_ptr<A
     const size_t total_internal_points = _max_points + _num_frozen_pts;
 
     _use_lsh = true;
+    std::cout << "LSH = " << _use_lsh << std::endl;
     if (_use_lsh) {
         // size_t num_hash_tables = index_config.num_hash_tables;
         // size_t num_hashes_per_table = index_config.num_hashes_per_table;
@@ -84,16 +85,9 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config, std::shared_ptr<A
           << ", num_hashes_per_table=" << num_hashes_per_table 
           << ", dim=" << _dim << std::endl;
 
+        _lsh_tables = std::make_unique<diskann::LSH>(_num_hash_tables, _num_hashes_per_table, _dim);
 
-
-        diskann::LSH lsh_tables(num_hash_tables, num_hashes_per_table, _dim);
-        // _lsh_buckets.resize(num_hash_tables);
-        // for (auto &table : _lsh_buckets){
-        //     // table.reserve(num_hashes_per_table);
-        // }
         std::cout << "Success" << std::endl;
-    } else {
-        std::cout << "Failure" << std::endl;
     }
 
     _start = (uint32_t)_max_points;
@@ -213,15 +207,15 @@ bool Index<T, TagT, LabelT>::is_lsh_enabled() const {
     return _use_lsh;
 }
 
-template <typename T, typename TagT, typename LabelT>
-size_t Index<T, TagT, LabelT>::get_lsh_bucket_count() const {
-    return _lsh_buckets.size();
-}
+// template <typename T, typename TagT, typename LabelT>
+// size_t Index<T, TagT, LabelT>::get_lsh_bucket_count() const {
+//     return _lsh_buckets.size();
+// }
 
-template <typename T, typename TagT, typename LabelT>
-size_t Index<T, TagT, LabelT>::get_lsh_table_capacity(size_t table_index) const {
-    return get_lsh_table_capacity(table_index);
-}
+// template <typename T, typename TagT, typename LabelT>
+// size_t Index<T, TagT, LabelT>::get_lsh_table_capacity(size_t table_index) const {
+//     return get_lsh_table_capacity(table_index);
+// }
 
 
 
@@ -1618,6 +1612,7 @@ void Index<T, TagT, LabelT>::build_with_data_populated(const std::vector<TagT> &
 
     _has_built = true;
 }
+
 template <typename T, typename TagT, typename LabelT>
 void Index<T, TagT, LabelT>::_build(const DataType &data, const size_t num_points_to_load, TagVector &tags)
 {
@@ -2961,6 +2956,11 @@ int Index<T, TagT, LabelT>::insert_point(const T *point, const TagT tag, const s
                 _label_to_start_id[label] = (uint32_t)fz_location;
                 _location_to_labels[fz_location] = {label};
                 _data_store->set_vector((location_t)fz_location, point);
+                Eigen::VectorXd eigen_point(_dim);
+                for (size_t i = 0; i < _dim; i++) {
+                    eigen_point(i) = point[i];
+                }
+                _lsh_tables->add(eigen_point, location);
                 _frozen_pts_used++;
             }
         }

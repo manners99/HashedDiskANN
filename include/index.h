@@ -16,6 +16,7 @@
 #include "neighbor.h"
 #include "parameters.h"
 #include "utils.h"
+#include "lsh.h"
 #include "windows_customizations.h"
 #include "scratch.h"
 #include "in_mem_data_store.h"
@@ -31,6 +32,7 @@
 
 namespace diskann
 {
+    class LSH;
 
 inline double estimate_ram_usage(size_t size, uint32_t dim, uint32_t datasize, uint32_t degree)
 {
@@ -377,8 +379,8 @@ template <typename T, typename TagT = uint32_t, typename LabelT = uint32_t> clas
     bool _enable_tags = false;
     bool _normalize_vecs = false; // Using normalied L2 for cosine.
     bool _deletes_enabled = false;
-    bool _use_lsh;
-    std::vector<std::vector<int>> _lsh_buckets;
+    bool _use_lsh = false;
+    std::unique_ptr<diskann::LSH> _lsh_tables;
 
     // Filter Support
 

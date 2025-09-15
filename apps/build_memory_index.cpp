@@ -19,7 +19,7 @@
 #include "memory_mapper.h"
 #include "ann_exception.h"
 #include "index_factory.h"
-
+ 
 namespace po = boost::program_options;
 
 int main(int argc, char **argv)
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     std::string data_type, dist_fn, data_path, index_path_prefix, label_file, universal_label, label_type;
     uint32_t num_threads, R, L, Lf, build_PQ_bytes;
     float alpha;
-    bool use_pq_build, use_opq;
+    bool use_pq_build, use_opq, use_lsh;
 
     po::options_description desc{
         program_options_utils::make_program_description("build_memory_index", "Build a memory-based DiskANN index.")};
@@ -61,6 +61,8 @@ int main(int argc, char **argv)
                                        program_options_utils::BUIlD_GRAPH_PQ_BYTES);
         optional_configs.add_options()("use_opq", po::bool_switch()->default_value(false),
                                        program_options_utils::USE_OPQ);
+        optional_configs.add_options()("use_lsh", po::bool_switch()->default_value(false),
+                                       program_options_utils::USE_LSH);
         optional_configs.add_options()("label_file", po::value<std::string>(&label_file)->default_value(""),
                                        program_options_utils::LABEL_FILE);
         optional_configs.add_options()("universal_label", po::value<std::string>(&universal_label)->default_value(""),
@@ -84,6 +86,7 @@ int main(int argc, char **argv)
         po::notify(vm);
         use_pq_build = (build_PQ_bytes > 0);
         use_opq = vm["use_opq"].as<bool>();
+        use_lsh = vm["use_lsh"].as<bool>();
     }
     catch (const std::exception &ex)
     {
@@ -144,6 +147,7 @@ int main(int argc, char **argv)
                           .with_index_write_params(index_build_params)
                           .is_enable_tags(false)
                           .is_use_opq(use_opq)
+                          .is_use_lsh(use_lsh)
                           .is_pq_dist_build(use_pq_build)
                           .with_num_pq_chunks(build_PQ_bytes)
                           .build();

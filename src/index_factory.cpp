@@ -139,7 +139,7 @@ std::unique_ptr<AbstractIndex> IndexFactory::create_instance()
                  (_config->index_write_params == nullptr ? 0 : _config->index_write_params->max_degree));
     std::unique_ptr<AbstractGraphStore> graph_store =
         construct_graphstore(_config->graph_strategy, num_points + _config->num_frozen_pts, max_reserve_degree);
-
+ 
     // REFACTOR TODO: Must construct in-memory PQDatastore if strategy == ONDISK and must construct
     // in-mem and on-disk PQDataStore if strategy == ONDISK and diskPQ is required.
     return std::make_unique<diskann::Index<data_type, tag_type, label_type>>(*_config, data_store,

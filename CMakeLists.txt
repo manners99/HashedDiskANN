@@ -53,7 +53,6 @@ if (MSVC)
     endif()
     message(STATUS "Finished setting up nuget dependencies")
 endif()
-
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 if(NOT PYBIND)
