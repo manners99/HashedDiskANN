@@ -79,10 +79,10 @@ Index<T, TagT, LabelT>::Index(const IndexConfig &index_config, std::shared_ptr<A
     if (_use_lsh) {
         // size_t num_hash_tables = index_config.num_hash_tables;
         // size_t num_hashes_per_table = index_config.num_hashes_per_table;
-        size_t num_hash_tables = 6;
-        size_t num_hashes_per_table = 6;
-        std::cout << "num_hash_tables=" << num_hash_tables 
-          << ", num_hashes_per_table=" << num_hashes_per_table 
+        _num_hash_tables = 6;
+        _num_hashes_per_table = 6;
+        std::cout << "num_hash_tables=" << _num_hash_tables 
+          << ", num_hashes_per_table=" << _num_hashes_per_table 
           << ", dim=" << _dim << std::endl;
 
         _lsh_tables = std::make_unique<diskann::LSH>(_num_hash_tables, _num_hashes_per_table, _dim);
@@ -1606,6 +1606,15 @@ void Index<T, TagT, LabelT>::build_with_data_populated(const std::vector<TagT> &
         total += pool.size();
         if (pool.size() < 2)
             cnt++;
+
+        //Add the points to the LSH tables
+        Eigen::VectorXd eigen_point(_dim);
+        std::vector<T> temp(_dim);
+        _data_store->get_vector(i, temp.data());   // copy point from data store
+        for (size_t j = 0; j < _dim; ++j) {
+            eigen_point(j) = temp[j];
+        }
+        _lsh_tables->add(eigen_point, (location_t)i);
     }
     diskann::cout << "Index built with degree: max:" << max << "  avg:" << (float)total / (float)(_nd + _num_frozen_pts)
                   << "  min:" << min << "  count(deg<2):" << cnt << std::endl;
@@ -2911,6 +2920,7 @@ int Index<T, TagT, LabelT>::insert_point(const T *point, const TagT tag)
 template <typename T, typename TagT, typename LabelT>
 int Index<T, TagT, LabelT>::insert_point(const T *point, const TagT tag, const std::vector<LabelT> &labels)
 {
+    std::cout << "Entered" << std::endl;
 
     assert(_has_built);
     if (tag == 0)
