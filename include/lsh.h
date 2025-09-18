@@ -68,7 +68,7 @@ namespace diskann
 
                     table.reserve(numBuckets); // reserve on local table
                     tables.push_back(std::move(table)); // push into tables vector
-                    std::cout << "[SPACE] Reserved " << (numBuckets) << " unique hash keys" << std::endl;
+                    // std::cout << "[SPACE] Reserved " << (numBuckets) << " unique hash keys" << std::endl;
 
                     //Create the hyperplanes
                     Eigen::MatrixXd hp(numHashes, dimension);
@@ -80,9 +80,9 @@ namespace diskann
                     hyperplanes.push_back(hp);
                 }
 
-                std::cout << "[INIT] Created LSH with " << numTables
-                << " tables, " << numHashes
-                << " hashes per table, dimension " << dimension << std::endl;
+                // std::cout << "[INIT] Created LSH with " << numTables
+                // << " tables, " << numHashes
+                // << " hashes per table, dimension " << dimension << std::endl;
             }
 
             HashKey hashFunction(const Eigen::VectorXd& point, const Eigen::MatrixXd& hyperplane){
@@ -95,26 +95,26 @@ namespace diskann
             }
 
             std::vector<HashKey> generateHash(const Eigen::VectorXd& point) {
-                std::cout << "[GENERATE_HASH] Generating hash for point " << point.transpose() << std::endl;
+                // std::cout << "[GENERATE_HASH] Generating hash for point " << point.transpose() << std::endl;
                 std::vector<HashKey> hashes;
                 for (int i = 0; i < numTables; i++) {
                     HashKey h = hashFunction(point, hyperplanes[i]);
-                    std::cout << "  [TABLE " << i << "] hash=(";
-                    for (int bit : h) std::cout << bit;
-                    std::cout << ")" << std::endl;
+                    //std::cout << "  [TABLE " << i << "] hash=(";
+                    //for (int bit : h) std::cout << bit;
+                    //std::cout << ")" << std::endl;
                     hashes.push_back(h);
                 }
                 return hashes;
             }
 
             void add(const Eigen::VectorXd& point, int id) {
-                std::cout << "[ADD] Adding point " << id << ": " << point.transpose() << std::endl;
+                //std::cout << "[ADD] Adding point " << id << ": " << point.transpose() << std::endl;
                 std::vector<HashKey> hashes = generateHash(point);
                 for (int i = 0; i < numTables; i++) {
                     tables[i][hashes[i]].push_back(id);
-                    std::cout << "  [TABLE " << i << "] Inserted " << id << " into bucket (";
-                    for (int bit : hashes[i]) std::cout << bit;
-                    std::cout << ")" << std::endl;
+                    // std::cout << "  [TABLE " << i << "] Inserted " << id << " into bucket (";
+                    // for (int bit : hashes[i]) std::cout << bit;
+                    // std::cout << ")" << std::endl;
                 }
             }
 
